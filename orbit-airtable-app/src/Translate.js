@@ -1,7 +1,6 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
-import { FloatingLabel, FormLabel, Col, Row, Button, Dropdown } from 'react-bootstrap';
-import CountryDrop from './CountryDrop';
+import { FormLabel, Col, Row, Button, Dropdown } from 'react-bootstrap';
 import 'react-bootstrap-country-select/dist/react-bootstrap-country-select.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
@@ -11,14 +10,20 @@ export class Translate extends React.Component {
     super(props);
     this.props = props;
     this.state = {
-      workplace_slug: 'camunda',
+      checked: false,
+      orgs: 'none',
       direction: 'Select',
       items: 'Select',
-      sort_string: 'name',
-      base_id: 'appNaNFooooF',
-      table_name: 'Table 1',
-      orgs: 'none',
-      deepl: 'none',
+      sort_string: 'Sort By',
+      show_config: 'none',
+      // orbit data required
+      workplace_slug: 'camunda',
+      orbitz_token: 'obu_oMdW2GEjOJiTIVxx2AS38l9OM8ptwasx_ddqJ5yA',
+      // AirTable data required
+      base_id: 'appEwylHyYb8LQNaN',
+      table_name: 'Organizations',
+      airtable_token: 'keycNYs4vDaTYWIQQ',
+      orbitz_query: 'organization',
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -39,14 +44,45 @@ export class Translate extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    const { projectID, projectEmail, privateKey, language } = this.state;
+    const { direction, items, sort_string, workplace_slug, orbitz_token, base_id, table_name, airtable_token, orbitz_query } = this.state;
     const formData = {
       variables: {
-        projectID: { value: projectID, type: 'string' },
-        projectEmail: { value: projectEmail, type: 'string' },
-        privateKey: { value: privateKey, type: 'string' },
-        language: { value: language, type: 'string' },
-        service: { value: 'google', type: 'string' },
+        direction: {
+          value: direction,
+          type: 'String',
+        },
+        items: {
+          value: items,
+          type: 'String',
+        },
+        sort_string: {
+          value: sort_string,
+          type: 'String',
+        },
+        workplace_slug: {
+          value: workplace_slug,
+          type: 'String',
+        },
+        orbitz_token: {
+          value: orbitz_token,
+          type: 'String',
+        },
+        base_id: {
+          value: base_id,
+          type: 'String',
+        },
+        table_name: {
+          value: table_name,
+          type: 'String',
+        },
+        airtable_token: {
+          value: airtable_token,
+          type: 'String',
+        },
+        orbitz_query: {
+          value: orbitz_query,
+          type: 'String',
+        },
       }
     };
     this.submitForm(formData);
@@ -54,28 +90,76 @@ export class Translate extends React.Component {
     console.log("handleSubmit", formData);
     const { onSubmit } = this.props;
     //onSubmit({ name, email, subject, comment });
-    console.log("Submit: ", projectID, projectEmail, privateKey, language);
   }
 
+  camundify = (data) => {
+    const { direction, items, sort_string, workplace_slug, orbitz_token, base_id, table_name, airtable_token, orbitz_query } = data;
+    const formData = {
+      variables: {
+        direction: {
+          value: direction,
+          type: 'String',
+        },
+        items: {
+          value: items,
+          type: 'String',
+        },
+        sort_string: {
+          value: sort_string,
+          type: 'String',
+        },
+        workplace_slug: {
+          value: workplace_slug,
+          type: 'String',
+        },
+        orbitz_token: {
+          value: orbitz_token,
+          type: 'String',
+        },
+        base_id: {
+          value: base_id,
+          type: 'String',
+        },
+        table_name: {
+          value: table_name,
+          type: 'String',
+        },
+        airtable_token: {
+          value: airtable_token,
+          type: 'String',
+        },
+        orbitz_query: {
+          value: orbitz_query,
+          type: 'String',
+        },
+      }
+    };
+    return formData;
+  }
 
   submitForm(data) {
-    // return fetch('https://davidgs.com:8443/engine-rest/process-definition/key/Process_1i8evdw/submit-form', {
-    //   method: 'POST',
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // }).then(response => {
-    //   if (response.status >= 200 && response.status < 300) {
+    let auth = 'Basic ' + btoa('davidgs:Toby66.Mime!');
+    // let newData = this.camundify(data);
+    console.log("Auth: ", auth);
+    return fetch('https://sentiment.camunda.com:8443/engine-rest/process-definition/key/Airtable/start', {
+      mode: 'no-cors',
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Authorization': auth,
+        // 'Content-Type': 'application/json',
+        'Content-Length': data.length
+      }
+    }).then(response => {
+      if (response.status >= 200 && response.status < 300) {
 
-    //     console.log(response);
-    //     // window.location.reload();
-    //     return response;
-    //   } else {
-    //     console.log('Somthing happened wrong');
-    //   }
-    // }).catch(err => err);
-    console.log("submitForm", data);
+        console.log(response);
+        window.location.reload();
+        return response;
+      } else {
+        console.log('Something happened wrong');
+      }
+    }).catch(err => err);
   }
 
   render() {
@@ -87,11 +171,9 @@ export class Translate extends React.Component {
             <Row className="mb-3">
               <Dropdown onSelect={eventKey => {
                 var g = eventKey === 'orgs' ? 'block' : 'none';
-                var d = eventKey === 'deepl' ? 'block' : 'none';
                 this.setState({
                   service: eventKey,
                   orgs: g,
-                  deepl: d,
                 });
               }}>
                 <Dropdown.Toggle variant="success" id="dropdown-basic">
@@ -107,12 +189,6 @@ export class Translate extends React.Component {
         <div className="align-items-left" style={{ display: this.state.orgs, width: '90%' }}>
           <div><h3>Fetching data for: Organizations</h3></div>
           <Form name="fetch-orgs" className="aligb-items-left" style={{ width: '90%' }} >
-              <Form.Group as={Row} className="mb-3"  controlId="formGridSlug">
-              <FormLabel column sm={4}>Workplace Slug</FormLabel>
-              <Col sm={8}>
-                <Form.Control name="workplace_slug" type="text" value={this.state.workplace_slug} onChange={this.handleChange} />
-              </Col>
-              </Form.Group>
               <Form.Group as={Row} className="mb-3" controlId="formGridDirection">
               <FormLabel column sm={4}>Direction</FormLabel>
               <Col sm={2}>
@@ -160,84 +236,90 @@ export class Translate extends React.Component {
               <Col sm={6}>
               </Col>
             </Form.Group>
-            <Row className="mb-3" style={{ display: this.state.google }}>
-              <Form.Group as={Col}>
-                <FloatingLabel
-                  controlId="floatingInput"
-                  label="Google Project Email"
-                  className="mb-3"
+            <Form.Group as={Row} className="mb-3" controlId="formGridAmount">
+              <FormLabel column sm={4}>Sort By</FormLabel>
+              <Col sm={2}>
+                <Dropdown id="sort" name="sort"
+                  onSelect={eventKey => {
+                    this.setState({
+                      sort_string: eventKey,
+                    });
+                  }}
                 >
-                  <Form.Control name="projectEmail" type="email" value={this.state.projectEmail} onChange={this.handleChange}
-                  />
-                </FloatingLabel>
-              </Form.Group>
-            </Row>
-            <p></p>
-            <Row style={{ display: this.state.google }}>
-              <Form.Group>
-                <FloatingLabel
-                  controlId="floatingInput"
-                  label="Private Key"
-                  className="mb-3"
-                >
-                  <Form.Control name="privateKey" as='textarea' value={this.state.privateKey} rows="300"
-                    onChange={this.handleChange}
-                    style={{
-                      height: '100px',
-                      width: '100%',
-                      border: '1px solid #ccc',
-                    }}
-                  />
-                </FloatingLabel>
-              </Form.Group>
-            </Row>
-            <Row>
-
-              <Col lg={3}>
-                <Form.Group>
-                  <CountryDrop id="googleSourceLang" name="Source Language" service="google" />
-                </Form.Group>
+                  <Dropdown.Toggle variant="primary" id="dropdown-flags" className="text-left" >
+                    {this.state.sort_string}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item key="name" eventKey="name">Name</Dropdown.Item>
+                    <Dropdown.Item key="website" eventKey="website">Website</Dropdown.Item>
+                    <Dropdown.Item key="members_count" eventKey="members_count">Members Count</Dropdown.Item>
+                    <Dropdown.Item key="employees_count" eventKey="employees_count">Employees Count</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </Col>
-              <Col lg={3}>
-                <Form.Group>
-                  <CountryDrop id="googleTargetLang" name="Target Language" service="google" />
-                </Form.Group>
+              <Col sm={6}>
               </Col>
-
-
-            </Row>
-            <Row>
-              <p> </p>
-            </Row>
-            <Button type='submit' onClick={this.handleSubmit}>Submit</Button>
-          </Form>
-        </div>
-        <div style={{ display: this.state.deepl, width: '70%' }}>
-          <div><h3>Translation Provider: DeepL</h3></div>
-          <Form name="translate-deepl" style={{ width: '70%' }} >
-            <Form.Group>
-              <Row className="mb-3" >
-                <FloatingLabel controlId="floatingInputGrid" label="Deepl Authorization Key">
-                  <Form.Control name="deepl_key" type="text" value={this.state.deepl_key} onChange={this.handleChange} />
-                </FloatingLabel>
-              </Row>
             </Form.Group>
-            <p></p>
-            <Row>
-              <Col lg={3}>
-                <Form.Group>
-                  <CountryDrop id="deeplSourceLang" name="Source Language" service="deepl" />
-                </Form.Group>
+
+            <Form.Group as={Row} className="mb-3" controlId="formGridConfig">
+              <FormLabel column sm={4}>Show Configuration</FormLabel>
+              <Col sm={2}>
+                <Form.Check
+                  checked={this.state.checked}
+                  as='input'
+                  name='show_config'
+                  type="switch"
+                  key="show_config"
+                  id="custom-switch"
+                  aria-label="Show Configuration"
+                  onChange={(checked) => {
+                    var c = !this.state.checked;
+                    console.log("Checked: ", c);
+                    var s = c ? 'block' : 'none';
+                    console.log("State: ", s)
+                    this.setState({
+                      checked: c,
+                      show_config: s
+                    })
+                  }}
+
+                            />
               </Col>
-              <Col lg={3}>
-                <Form.Group>
-                  <CountryDrop id="deeplTargetLang" name="Target Language" service="deepl" />
+              <div className="align-items-left" style={{ display: this.state.show_config, width: '90%' }}>
+                <h2 align-items="center">Orbitz Configuration</h2>
+                <Form.Group as={Row} className="mb-3" controlId="formGridSlug">
+                  <FormLabel column sm={4}>Orbitz Token</FormLabel>
+                  <Col sm={8}>
+                    <Form.Control name="orbitz_token" type="text" value={this.state.orbitz_token} onChange={this.handleChange} />
+                  </Col>
                 </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <p> </p>
-            </Row>
+                <Form.Group as={Row} className="mb-3" controlId="formGridSlug">
+                  <FormLabel column sm={4}>Workplace Slug</FormLabel>
+                  <Col sm={8}>
+                    <Form.Control name="workplace_slug" type="text" value={this.state.workplace_slug} onChange={this.handleChange} />
+                  </Col>
+                </Form.Group>
+                <h3 align-items="center">Airtable Configuration</h3>
+                <Form.Group as={Row} className="mb-3" controlId="formGridSlug">
+                  <FormLabel column sm={4}>Airtable Token</FormLabel>
+                  <Col sm={8}>
+                    <Form.Control name="airtable_token" type="text" value={this.state.airtable_token} onChange={this.handleChange} />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3" controlId="formGridSlug">
+                  <FormLabel column sm={4}>Base ID</FormLabel>
+                  <Col sm={8}>
+                    <Form.Control name="base_id" type="text" value={this.state.base_id} onChange={this.handleChange} />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3" controlId="formGridSlug">
+                  <FormLabel column sm={4}>Table Name</FormLabel>
+                  <Col sm={8}>
+                    <Form.Control name="table_name" type="text" value={this.state.table_name} onChange={this.handleChange} />
+                  </Col>
+                </Form.Group>
+              </div>
+            </Form.Group>
             <Button type='submit' onClick={this.handleSubmit}>Submit</Button>
           </Form>
         </div>

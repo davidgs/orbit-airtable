@@ -53,7 +53,7 @@ import (
 	 DefaultCamundaProcessDefinition = "task-worker"
 
 	 // DefaultOrbitURL is the default URL for Orbit
-	 DefaultOrbitURL = "https://app.orbit.love/api/v1/camunda/organizations?query&page&direction=DESC&items=100&sort=members_count"
+	 DefaultOrbitURL = "https://app.orbit.love/api/v1/"
 	 // DefaultOrbit API key
 	 DefaultOrbitAPIKey = "obu_oMdW2GEjOJiTIVxx2AS38l9OM8ptwasx_ddqJ5yA"
 	 // DefaultAirtableURL is the default URL for Airtable
@@ -165,20 +165,6 @@ func main() {
 			return handleProcess(ctx.Task.Variables, ctx)
 		},
 	)
-
-	// Create a new HTTP client
-	// httpClient := &http.Client{
-	// 	Transport: &http.Transport{
-	// 		TLSClientConfig: &tls.Config{
-	// 			InsecureSkipVerify: true,
-	// 		},
-	// 	},
-	// 	CheckRedirect: func(req *http.Request, via []*http.Request) error {
-	// 		return http.ErrUseLastResponse
-	// 	},
-	// 	Jar:     nil,
-	// 	Timeout: DefaultCamundaClientTimeout,
-	// }
 	log.Debug("checkQueue Handler started ... ")
 	http.HandleFunc("/sentiment", webHandler)
 	http.Handle("/", http.FileServer(http.Dir("./static")))
@@ -186,44 +172,29 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Get orbit data from Airtable
-// 	orbitData, err := getOrbitData(httpClient)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// //	fmt.Printf("Data: %+v\n", orbitData)
-// 	airtableData, err := processData(orbitData)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	//fmt.Printf("Data: %+v\n", airtableData)
-// 	err = postAirtableData(httpClient, airtableData)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
 }
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
 	fmt.Println("Hello")
 }
+
 func handleProcess(variables map[string]camundaclientgo.Variable, ctx *processor.Context) error {
 	fmt.Println("Processing task ... ")
 	fmt.Printf("Variables: %+v\n", variables)
 	varb := ctx.Task.Variables
 	fmt.Printf("Variables: %+v\n", varb)
-	orbitData, err := getOrbitData()
+	orbitData, err := getOrbitData(varb)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Data: %+v\n", orbitData)
 	table_name :=fmt.Sprintf("%v", ctx.Task.Variables["table_name"].Value)
 	base_id := fmt.Sprintf("%v", ctx.Task.Variables["base_id"].Value)
-	clear_table := fmt.Sprintf("%v", ctx.Task.Variables["clear_table"].Value)
+	airtable_token := fmt.Sprintf("%v", ctx.Task.Variables["airtable_token"].Value)
 	fmt.Println("Table Name: ", table_name)
 	fmt.Println("Base ID: ", base_id)
-	err = processData(orbitData, base_id, table_name, clear_table)
+	err = processData(orbitData, varb)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -236,7 +207,7 @@ func handleProcess(variables map[string]camundaclientgo.Variable, ctx *processor
 		return nil
 }
 
-func getOrbitData() (OrbitData, error){
+func getOrbitData(varb ctx.Task.Variables) (OrbitData, error){
 	var orbitData OrbitData
 	httpClient := &http.Client{
 		Transport: &http.Transport{
@@ -279,20 +250,16 @@ func getAirtableData(httpClient *http.Client) (AirtableData, error) {
 	if err != nil {
 		return airtableData, err
 	}
-
 	// Parse orbit data from Airtable
 	err = json.NewDecoder(response.Body).Decode(&airtableData)
 	if err != nil {
 		return airtableData, err
 	}
-
 	return airtableData, nil
 }
 
-func processData(orbitData OrbitData, base_id string, table_name string, clear_table string) ( error) {
+func processData(orbitData OrbitData, varb ctx.Task.Variables) ( error) {
 	airtableData := AirtableData{}
-	if clear_table == "true" {
-		
 	fmt.Println("Base ID: ", base_id)
 	fmt.Println("Table Name: ", table_name)
 	recordCounter := 0;
@@ -338,17 +305,19 @@ func processData(orbitData OrbitData, base_id string, table_name string, clear_t
 			},
 		})
 		recordCounter++
-	}
 	return nil
 }
 
-func postAirtableData(httpClient *http.Client, airtableData AirtableData, base_id string, table_name string) error {
+func postAirtableData(httpClient *http.Client, varb ctx.Task.Variables) error {
 	// Create a new HTTP request
+	table_name := fmt.Sprintf("%v", varb["table_name"].Value)
 	x := url.PathEscape(table_name)
 	fmt.Println("Table Name: ", x)
+	base_id := fmt.Sprintf("%v", varb["base_id"].Value)
 	req, err := http.NewRequest("POST", DefaultAirtableURL + base_id + "/" +  x, nil)
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+DefaultAirtableAPIKey)
+	airtable_key := fmt.Sprintf("%v", varb["airtable_token"].Value)
+	req.Header.Add("Authorization", "Bearer " + airtable_key)
 	if err != nil {
 		return err
 	}
@@ -372,6 +341,5 @@ func postAirtableData(httpClient *http.Client, airtableData AirtableData, base_i
 		return err
 	}
 	fmt.Println(response.Body)
-
 	return nil
 }
