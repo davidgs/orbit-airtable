@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_11o6ff2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
-  <bpmn:process id="Airtable" isExecutable="true">
-    <bpmn:sequenceFlow id="Flow_0o4b4z4" sourceRef="start_data" targetRef="Activity_0jjs9gp" />
+  <bpmn:process id="Airtable2" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_0o4b4z4" sourceRef="start_data" targetRef="FormActivity" />
     <bpmn:endEvent id="Event_1486m7w">
       <bpmn:incoming>Flow_1lq2aei</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1lq2aei" sourceRef="Activity_0jjs9gp" targetRef="Event_1486m7w" />
     <bpmn:serviceTask id="Activity_0jjs9gp" name="Update Data" camunda:type="external" camunda:topic="process_data">
-      <bpmn:incoming>Flow_0o4b4z4</bpmn:incoming>
+      <bpmn:incoming>Flow_12yikn5</bpmn:incoming>
       <bpmn:outgoing>Flow_1lq2aei</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:startEvent id="start_data" name="Request Data" camunda:initiator="start_data">
       <bpmn:outgoing>Flow_0o4b4z4</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0mar2ob" messageRef="Message_1665txa" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0mar2ob" messageRef="Message_038h4u6" />
     </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_12yikn5" sourceRef="FormActivity" targetRef="Activity_0jjs9gp" />
+    <bpmn:userTask id="FormActivity" name="Setup" camunda:formRef="AirtableForm" camunda:formRefBinding="latest" camunda:assignee="davidgs">
+      <bpmn:incoming>Flow_0o4b4z4</bpmn:incoming>
+      <bpmn:outgoing>Flow_12yikn5</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:message id="Message_1665txa" name="start_data" />
+  <bpmn:message id="Message_038h4u6" name="Message_1qvrkgg" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Airtable">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Airtable2">
       <bpmndi:BPMNEdge id="Flow_1lq2aei_di" bpmnElement="Flow_1lq2aei">
         <di:waypoint x="460" y="117" />
         <di:waypoint x="592" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o4b4z4_di" bpmnElement="Flow_0o4b4z4">
         <di:waypoint x="215" y="117" />
+        <di:waypoint x="240" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12yikn5_di" bpmnElement="Flow_12yikn5">
+        <di:waypoint x="340" y="117" />
         <di:waypoint x="360" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1486m7w_di" bpmnElement="Event_1486m7w">
         <dc:Bounds x="592" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0st0leo_di" bpmnElement="Activity_0jjs9gp">
+        <dc:Bounds x="360" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_01ju0b1_di" bpmnElement="start_data">
         <dc:Bounds x="179" y="99" width="36" height="36" />
@@ -35,8 +48,8 @@
           <dc:Bounds x="164" y="142" width="68" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0st0leo_di" bpmnElement="Activity_0jjs9gp">
-        <dc:Bounds x="360" y="77" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_025x7et_di" bpmnElement="FormActivity">
+        <dc:Bounds x="240" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

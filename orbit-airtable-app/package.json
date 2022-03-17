@@ -1,13 +1,15 @@
 {
   "name": "orbit-airtable-app",
   "version": "0.1.0",
-  "private": true,
-  "main": "public/electron.js",
+  "main": "App.js",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.26.1",
     "bootstrap": "^5.1.3",
+    "electron-forge": "^5.2.4",
+    "electron-webpack": "^2.8.2",
     "react": "^17.0.2",
     "react-bootstrap": "^2.2.0",
     "react-bootstrap-country-select": "^1.0.0",
@@ -16,12 +18,16 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "electron-forge start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
     "dev": "concurrently -k \"BROWSER=none npm start\" \"npm:electron\"",
-    "electron": "wait-on tcp:3000 && electron ."
+    "electron": "wait-on tcp:3000 && electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge --verbose make"
   },
   "eslintConfig": {
     "extends": [
@@ -42,9 +48,12 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.17.7",
+    "@babel/preset-react": "^7.16.7",
+    "babel-loader": "^8.2.3",
     "concurrently": "^7.0.0",
-    "electron": "^17.1.2",
     "electron-is-dev": "^2.0.0",
+    "electron-prebuilt-compile": "17.1.2",
     "wait-on": "^6.0.1"
   }
 }
