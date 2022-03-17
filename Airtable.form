@@ -14,7 +14,6 @@
     {
       "label": "Airtable Table Name",
       "type": "textfield",
-      "readonly": true,
       "id": "Field_1nac7p8",
       "key": "table_name",
       "description": "The name of the table to insert into",
@@ -28,12 +27,6 @@
       "type": "button",
       "id": "Field_1ulhtl5",
       "key": "field_11t7wzt"
-    },
-    {
-      "label": "Text Field",
-      "type": "textfield",
-      "id": "Field_0mpb287",
-      "key": "field_09feq1h"
     }
   ],
   "type": "default",
